@@ -9,7 +9,6 @@ import 'package:darlink/shared/widgets/filter_bottom.dart';
 import 'package:fixnum/fixnum.dart';
 import '../../constants/Database_url.dart' as mg;
 
-int id =4;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -32,8 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       isLoading = true;
     });
-    id--;
-    final all_proprty_info = await mg.collect_info_properties(id);
+    final all_proprty_info = await mg.collect_info_properties();
 
     if (all_proprty_info != null && all_proprty_info.isNotEmpty) {
       // Clear existing list

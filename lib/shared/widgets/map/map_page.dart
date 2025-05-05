@@ -9,9 +9,24 @@ class map_page extends StatefulWidget {
 }
 
 class _map_page_State extends State<map_page> {
-  static const LatLng location =LatLng(37.4223, -122.0848);
+  static const LatLng location = LatLng(37.4223, -122.0848);
+
+  // Define a set of markers
+  final Set<Marker> _markers = {
+    Marker(
+      markerId: MarkerId('locationMarker'),
+      position: location,
+      infoWindow: InfoWindow(title: 'Location'),
+    ),
+  };
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: GoogleMap(initialCameraPosition: CameraPosition(target: location , zoom: 13)),);
+    return Scaffold(
+      body: GoogleMap(
+        initialCameraPosition: CameraPosition(target: location, zoom: 13),
+        markers: _markers,
+      ),
+    );
   }
 }

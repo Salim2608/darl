@@ -1,47 +1,54 @@
 import 'package:darlink/modules/detail/event_detail_screen.dart';
 import 'package:darlink/shared/widgets/card/event_card.dart';
 import 'package:flutter/material.dart';
+import 'package:darlink/layout/announce_event_page.dart';
+import 'package:mongo_dart/mongo_dart.dart' as mongo;
+import 'package:darlink/constants/Database_url.dart' as mg;
 
-class EventScreen extends StatelessWidget {
-  final List<Map<String, String>> events = [
-    {
-      'title': 'Book Fair',
-      'date': 'May 15, 2025',
-      'location': 'Beirut, Biel',
-      'description':
-          'Come explore thousands of books from international and local publishers.',
-      'image':
-          'https://www.globaltimes.cn/Portals/0/attachment/2022/2022-11-13/1bc337f2-f660-4614-b897-58bf1498a6e5.jpeg'
-    },
-    {
-      'title': 'Anything Goes Bel Arabi - Award Winning Broadway Musical',
-      'date': 'May 18, 2025',
-      'location': 'Casino du Liban',
-      'description':
-          'Enjoy a spectacular Broadway musical performed entirely in Arabic.',
-      'image':
-          'https://cdn.ticketingboxoffice.com/uploadImages/ProducersEventsPics/Producers-Events-T-1405-638715148217700146.jpg'
-    },
-    {
-      'title': 'Let us Walk in a Brighter Beirut',
-      'date': 'May 26, 2025',
-      'location': 'Corniche Ain El Mraisseh',
-      'description':
-          'Join us for a walk to support a greener and brighter Beirut!',
-      'image':
-          'https://images-ihjoz-com.s3.amazonaws.com/events/cover/6964/event_cover_WhatsApp_Image_2023-04-27_at_12.18.09_PM.jpg'
-    },
-    {
-      'title': 'معرض الصناعة في لبنان',
-      'date': 'May 8-13, 2025',
-      'location': 'Beirut, Biel',
-      'description': 'اكتشف المنتجات الصناعية اللبنانية من مختلف القطاعات.',
-      'image':
-          'https://lebanon.shafaqna.com/wp-content/uploads/2023/06/dsc_0306.jpg'
-    },
-  ];
+class EventScreen extends StatefulWidget {
+  const EventScreen({super.key});
 
-  EventScreen({super.key});
+  @override
+  State<EventScreen> createState() => _EventScreenState();
+}
+
+class _EventScreenState extends State<EventScreen> {
+  List<Map<String, dynamic>> events = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchEvents();
+  }
+
+  Future<void> _fetchEvents() async {
+    try {
+      final eventData = await collect_info_Events();
+      setState(() {
+        events = eventData;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error loading events: ${e.toString()}')),
+      );
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> collect_info_Events() async {
+    var db = await mongo.Db.create(mg.mongo_url);
+    await db.open();
+    var collection = db.collection("Event");
+    var eventdata = await collection.find().toList();
+    print('----------------------------------------');
+    print(eventdata.toString());
+
+    return eventdata;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,43 +74,59 @@ class EventScreen extends StatelessWidget {
       backgroundColor: theme.colorScheme.background,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: ListView.builder(
-          itemCount: events.length,
-          itemBuilder: (context, index) {
-            final event = events[index];
-            return AnimatedContainer(
-              duration: Duration(milliseconds: 500 + index * 100),
-              curve: Curves.easeOutBack,
-              margin: const EdgeInsets.only(bottom: 16),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => EventDetailPage(event: event),
-                    ),
-                  );
-                },
-                child: EventCard(
-                  title: event['title']!,
-                  date: event['date']!,
-                  location: event['location']!,
-                  imageUrl: event['image']!,
+        child: isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : RefreshIndicator(
+          onRefresh: _fetchEvents,
+          child: ListView.builder(
+            itemCount: events.length,
+            itemBuilder: (context, index) {
+              final event = events[index];
+              return AnimatedContainer(
+                duration: Duration(milliseconds: 500 + index * 100),
+                curve: Curves.easeOutBack,
+                margin: const EdgeInsets.only(bottom: 16),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EventDetailPage(event: {
+                          'title': event['Event Name']?.toString() ?? 'No Title',
+                          'date': event['date']?.toString() ?? 'No Date',
+                          'location': event['location'] != null
+                              ? '${event['location']['latitude']}, ${event['location']['longitude']}'
+                              : 'No Location',
+                          'description': event['description']?.toString() ?? 'No Description',
+                          'image': event['image']?.toString() ?? '',
+                          'price': event['price']?.toString() ?? 'Free',
+                          'celeb': event['celeb']?.toString() ?? '',
+                        }),
+                      ),
+                    );
+                  },
+                  child: EventCard(
+                    title: event['Event Name']?.toString() ?? 'No Title',
+                    date: event['date']?.toString() ?? 'No Date',
+                    location: event['location'] != null
+                        ? '${event['location']['latitude']}, ${event['location']['longitude']}'
+                        : 'No Location',
+                    imageUrl: event['image']?.toString() ?? '',
+                  ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton(
         onPressed: () {
-          print('Add Event Button Pressed');
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AnnounceEventPage()),
+          ).then((_) => _fetchEvents()); // Refresh events after adding a new one
         },
-        label: Text(
-          'Add Event',
-          style: theme.textTheme.titleLarge?.copyWith(color: Colors.white),
-        ),
-        icon: Icon(Icons.add, color: Colors.white),
+        child: Icon(Icons.add),
         backgroundColor: theme.colorScheme.primary,
       ),
     );

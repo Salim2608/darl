@@ -11,6 +11,7 @@ import '../../constants/colors/app_color.dart';
 // Global variables for user data
 String usermail = "";
 String username = "";
+bool isValid=false;
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -34,6 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool exists_email = false;
   String result_password = "";
 
+
   Future<void> _validateAndLogin() async {
     var db = await mongo.Db.create(mg.mongo_url);
     await db.open();
@@ -56,6 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
         _emailError = 'Enter a valid email';
       } else {
         _emailError = null;
+
       }
 
       if (_passwordController.text.isEmpty) {

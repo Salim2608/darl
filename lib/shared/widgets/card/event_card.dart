@@ -25,11 +25,12 @@ class EventCard extends StatelessWidget {
       color: theme.cardTheme.color,
       child: Stack(
         children: [
+          // Background image with hero animation
           Hero(
-            tag: imageUrl,
+            tag: imageUrl.isNotEmpty ? imageUrl : 'placeholder_$title',
             child: FadeInImage.assetNetwork(
               placeholder: 'assets/images/placeholder.jpg',
-              image: imageUrl,
+              image: imageUrl.isNotEmpty ? imageUrl : 'assets/images/placeholder.jpg',
               height: 220,
               width: double.infinity,
               fit: BoxFit.cover,
@@ -37,11 +38,13 @@ class EventCard extends StatelessWidget {
                 height: 220,
                 color: theme.colorScheme.surface,
                 alignment: Alignment.center,
-                child: Text('Image failed to load',
+                child: Text('Image not available',
                     style: theme.textTheme.bodyMedium),
               ),
             ),
           ),
+
+          // Gradient overlay
           Container(
             height: 220,
             decoration: BoxDecoration(
@@ -55,6 +58,8 @@ class EventCard extends StatelessWidget {
               ),
             ),
           ),
+
+          // Event information
           Positioned(
             bottom: 16,
             left: 16,
@@ -62,8 +67,9 @@ class EventCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Event title
                 Text(
-                  title.toUpperCase(),
+                  title.isNotEmpty ? title.toUpperCase() : 'NO TITLE',
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
@@ -74,20 +80,24 @@ class EventCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 6),
+
+                // Date and location row
                 Row(
                   children: [
                     Icon(Icons.calendar_today, size: 14, color: Colors.white70),
                     const SizedBox(width: 4),
-                    Text(date,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: Colors.white70,
-                        )),
+                    Text(
+                      date.isNotEmpty ? date : 'No date specified',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.white70,
+                      ),
+                    ),
                     const SizedBox(width: 12),
                     Icon(Icons.location_on, size: 14, color: Colors.white70),
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
-                        location,
+                        location.isNotEmpty ? location : 'Location not specified',
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: Colors.white70,
                         ),

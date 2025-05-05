@@ -2,8 +2,10 @@ import 'package:darlink/constants/app_theme_data.dart';
 import 'package:darlink/constants/database_url.dart';
 import 'package:darlink/layout/home_layout.dart';
 import 'package:darlink/modules/authentication/login_screen.dart';
+import 'package:darlink/modules/authentication/register_screen.dart';
 import 'package:darlink/shared/cubit/app_cubit.dart';
 import 'package:darlink/shared/cubit/app_state.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

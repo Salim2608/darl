@@ -369,6 +369,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       target: const LatLng(37.4223, -122.0848),
                       zoom: 14,
                     ),
+                    markers: {_marker}, // set of markers
                   ),
                 ),
               ),
@@ -402,3 +403,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     );
   }
 }
+
+final Marker _marker = Marker(
+  markerId: MarkerId('initialMarker'),
+  position: LatLng(37.4223, -122.0848),
+  infoWindow: InfoWindow(title: 'Marker Title'),
+);
